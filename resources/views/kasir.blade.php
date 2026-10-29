@@ -4,6 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Kasir Retail POS</title>
+    <meta name="csrf-token" content="{{ csrf_token() }}">
     <link rel="stylesheet" href="{{ url(asset('css/chasier.css')) }}">
 </head>
 <body>
@@ -168,6 +169,7 @@
     </footer>
 </div>
 
+<script>window.PRODUCTS = @json($products);</script>
 <script src="{{ url(asset('js/chasier.js')) }}"></script>
 </body>
 </html>

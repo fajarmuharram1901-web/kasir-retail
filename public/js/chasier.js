@@ -1,7 +1,7 @@
 /* ============================================
    SAMPLE PRODUCT DATA
 ============================================ */
-const products = [
+const products = window.PRODUCTS || [
     { id: 1, code: "BRG001", barcode: "899123456001", name: "Indomie Goreng",       price: 3500 },
     { id: 2, code: "BRG002", barcode: "899123456002", name: "Aqua 600ml",           price: 4000 },
     { id: 3, code: "BRG003", barcode: "899123456003", name: "Teh Botol Sosro",      price: 5000 },
@@ -294,20 +294,33 @@ function processPayment() {
     }
 
     const change = payment - total;
+    const customer = document.getElementById("customerType").value;
+    const phone = document.getElementById("customerPhone").value.trim();
 
-    alert(
-        "Pembayaran berhasil!\n\n" +
-            "Metode  : " + getPaymentMethod() + "\n" +
-            "Total   : " + formatRupiah(total) + "\n" +
-            "Bayar   : " + formatRupiah(payment) + "\n" +
-            "Kembali : " + formatRupiah(change),
-    );
-
-    // Nantinya dapat diganti:
-    // window.location.href = "/transaksi/" + transactionId + "/print";
-
-    resetTransaction();
-    generateTransactionNumber();
+    fetch("/orders", {
+        method: "POST",
+        headers: {
+            "Content-Type": "application/json",
+            "Accept": "application/json",
+            "X-CSRF-TOKEN": document.querySelector('meta[name="csrf-token"]').content,
+        },
+        body: JSON.stringify({
+            customer_name: phone ? customer + " (" + phone + ")" : customer,
+            total: Math.round(total),
+            items: cart.map((i) => ({ id: i.id, qty: i.qty })),
+        }),
+    })
+        .then((res) => {
+            if (!res.ok) throw new Error("Gagal menyimpan transaksi");
+            return res.json();
+        })
+        .then((data) => {
+            alert("Pembayaran berhasil!\n\nKembali : " + formatRupiah(change));
+            window.location.href = data.invoice_url;
+            resetTransaction();
+            generateTransactionNumber();
+        })
+        .catch((err) => alert(err.message));
 }
 
 /* ============================================
