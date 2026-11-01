@@ -6,6 +6,7 @@
     <title>Kasir Retail POS</title>
     <meta name="csrf-token" content="{{ csrf_token() }}">
     <link rel="stylesheet" href="{{ url(asset('css/chasier.css')) }}">
+    @vite(['resources/js/app.js'])
 </head>
 <body>
 <div class="pos-container">
@@ -171,5 +172,14 @@
 
 <script>window.PRODUCTS = @json($products);</script>
 <script src="{{ url(asset('js/chasier.js')) }}"></script>
+<script>
+document.addEventListener('DOMContentLoaded', () => {
+    window.Echo.channel('orders')
+        .listen('.order.placed', (e) => {
+            alert(`Order #${e.order_id} telah ditempatkan! Total: Rp ${e.total}`);
+            console.log('Order Placed:', e);
+        });
+});
+</script>
 </body>
 </html>

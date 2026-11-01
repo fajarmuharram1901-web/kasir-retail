@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Events\OrderPlaced;
 use App\Models\Order;
 use App\Models\Product;
 use Barryvdh\DomPDF\Facade\Pdf;
@@ -51,6 +52,8 @@ class OrderController extends Controller
 
             return $order;
         });
+
+        event(new OrderPlaced($order));
 
         return response()->json([
             'id'          => $order->id,
